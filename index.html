@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dezer Music | Ultimate Cryptographic System</title>
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7831163932493310" crossorigin="anonymous"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #020202;
+            --accent: #00f2ea;
+            --secondary: #7000ff;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; cursor: none; } /* Mouse gizlendi, özel cursor eklenecek */
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Outfit', sans-serif; 
+            overflow-x: hidden;
+            overflow-y: hidden; /* Preloader bitene kadar scroll yok */
+        }
+
+        /* ÖZEL CURSOR */
+        #cursor {
+            position: fixed; width: 20px; height: 20px;
+            border: 2px solid var(--accent); border-radius: 50%;
+            pointer-events: none; transform: translate(-50%, -50%);
+            z-index: 9999; transition: width 0.2s, height 0.2s;
+            mix-blend-mode: difference;
+        }
+        #cursor-dot {
+            position: fixed; width: 4px; height: 4px;
+            background: var(--accent); border-radius: 50%;
+            pointer-events: none; transform: translate(-50%, -50%);
+            z-index: 10000;
+        }
+
+        /* PRELOADER */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 5000;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            transition: opacity 0.5s ease;
+        }
+        .loader-bar {
+            width: 200px; height: 2px; background: #333; margin-top: 20px; position: relative; overflow: hidden;
+        }
+        .loader-progress {
+            position: absolute; top: 0; left: 0; height: 100%; width: 0%;
+            background: var(--accent); box-shadow: 0 0 20px var(--accent);
+            animation: load 2s ease-in-out forwards;
+        }
+        @keyframes load { 0% {width: 0%} 100% {width: 100%} }
+
+        /* Canvas */
+        #snowCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.5; }
+
+        /* Nav */
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 30px 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100; mix-blend-mode: exclusion;
+        }
+        .logo { font-family: 'Space Grotesk'; font-weight: 900; font-size: 24px; letter-spacing: -1px; }
+        
+        .controls { display: flex; gap: 20px; }
+        .control-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            color: var(--text); padding: 8px 24px; border-radius: 4px;
+            font-size: 11px; font-weight: 700; letter-spacing: 1px;
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .control-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 242, 234, 0.2), transparent);
+            transition: 0.5s;
+        }
+        .control-btn:hover::before { left: 100%; }
+        .control-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            position: relative; z-index: 2; padding: 20px;
+        }
+        
+        /* GLITCH TEXT EFFECT */
+        .glitch-wrapper { position: relative; margin-bottom: 20px; }
+        .glitch {
+            font-family: 'Space Grotesk'; font-size: clamp(50px, 9vw, 100px);
+            font-weight: 700; line-height: 1; color: #fff; letter-spacing: -4px;
+            position: relative;
+        }
+        .glitch::before, .glitch::after {
+            content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .glitch::before {
+            left: 2px; text-shadow: -1px 0 #ff00c1; clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        .glitch::after {
+            left: -2px; text-shadow: -1px 0 #00fff9; clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-anim {
+            0% { clip: rect(12px, 9999px, 5px, 0); }
+            5% { clip: rect(85px, 9999px, 92px, 0); }
+            10% { clip: rect(10px, 9999px, 2px, 0); }
+            100% { clip: rect(45px, 9999px, 62px, 0); }
+        }
+        @keyframes glitch-anim2 {
+            0% { clip: rect(62px, 9999px, 75px, 0); }
+            5% { clip: rect(15px, 9999px, 2px, 0); }
+            10% { clip: rect(5px, 9999px, 12px, 0); }
+            100% { clip: rect(95px, 9999px, 82px, 0); }
+        }
+
+        .hero p {
+            color: #888; font-size: clamp(16px, 2vw, 20px); max-width: 600px;
+            margin-bottom: 50px; line-height: 1.6;
+        }
+
+        .btn-main {
+            padding: 20px 60px; background: transparent; color: var(--accent);
+            text-decoration: none; font-weight: 800; font-size: 16px;
+            border: 1px solid var(--accent); position: relative; overflow: hidden;
+            transition: 0.4s; letter-spacing: 2px; clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+        }
+        .btn-main:hover { background: var(--accent); color: #000; box-shadow: 0 0 50px var(--accent-glow); }
+
+        /* 3D CARDS SECTION */
+        .commands-section {
+            padding: 100px 20px; max-width: 1200px; margin: 0 auto;
+            position: relative; z-index: 3;
+        }
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;
+        }
+        .tilt-card {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            padding: 40px; border-radius: 16px; position: relative;
+            transform-style: preserve-3d; transform: perspective(1000px);
+            transition: transform 0.1s ease;
+            backdrop-filter: blur(5px);
+        }
+        .tilt-card:hover {
+            border-color: var(--accent); background: rgba(0, 242, 234, 0.03);
+        }
+        .card-icon {
+            font-size: 32px; color: var(--accent); margin-bottom: 20px;
+            transform: translateZ(20px); display: inline-block;
+        }
+        .card-title {
+            font-family: 'Space Grotesk'; font-size: 22px; margin-bottom: 10px;
+            color: #fff; transform: translateZ(30px);
+        }
+        .card-desc {
+            color: #888; font-size: 14px; line-height: 1.6; transform: translateZ(20px);
+        }
+
+        /* AdSense Stylized */
+        .ad-zone {
+            width: 100%; max-width: 900px; margin: 60px auto;
+            border: 1px dashed #333; padding: 2px; position: relative;
+            z-index: 2; min-height: 100px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ad-zone::before {
+            content: 'SYSTEM ADVERTISEMENT'; position: absolute; top: -10px; left: 50%;
+            transform: translateX(-50%); background: var(--bg); padding: 0 10px;
+            color: #444; font-size: 10px; letter-spacing: 2px;
+        }
+
+        .content-rich {
+            max-width: 900px; margin: 0 auto 100px; padding: 40px;
+            border-left: 2px solid var(--accent); background: linear-gradient(90deg, rgba(0,242,234,0.02), transparent);
+            z-index: 2; position: relative;
+        }
+
+        footer {
+            padding: 50px 20px; border-top: 1px solid #111; text-align: center;
+            z-index: 2; position: relative; color: #444;
+        }
+        .footer-link { color: var(--accent); text-decoration: none; font-weight: 700; }
+
+        @media (max-width: 768px) {
+            .glitch { font-size: 50px; }
+            .tilt-card { margin-bottom: 20px; }
+            * { cursor: auto !important; } /* Mobilde özel cursor kapat */
+            #cursor, #cursor-dot { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="cursor"></div>
+    <div id="cursor-dot"></div>
+
+    <div id="preloader">
+        <div style="font-family: 'Space Grotesk'; font-weight: 900; font-size: 24px; letter-spacing: 4px; color: #fff;">INITIALIZING</div>
+        <div class="loader-bar"><div class="loader-progress"></div></div>
+        <div style="margin-top: 10px; color: var(--accent); font-size: 12px; font-family: monospace;">LOADING CRYPTO MODULES...</div>
+    </div>
+
+    <canvas id="snowCanvas"></canvas>
+
+    <nav>
+        <div class="logo">DEZER<span style="color:var(--accent)">.ME</span></div>
+        <div class="controls">
+            <div class="control-btn" onclick="toggleSnow()" id="snowBtn">VFX: ON</div>
+            <div class="control-btn" onclick="toggleLang()" id="langBtn">EN</div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="glitch-wrapper">
+            <h1 class="glitch" data-text="DIGITAL INTELLIGENCE" id="heroH">DIGITAL INTELLIGENCE</h1>
+        </div>
+        <p id="heroP">Secure. Fast. Anonymous. The world's most advanced Telegram media engine.</p>
+        <a href="https://t.me/dezermusiicbot" class="btn-main" id="heroB">INITIALIZE BOT</a>
+    </section>
+
+    <div class="ad-zone">REKLAM ALANI / AD SPACE</div>
+
+    <div class="commands-section">
+        <h2 style="text-align: center; font-family: 'Space Grotesk'; font-size: 30px; margin-bottom: 50px; color: #555;">SYSTEM MODULES</h2>
+        <div class="grid">
+            <div class="tilt-card" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)">
+                <i class="fas fa-bolt card-icon"></i>
+                <h3 class="card-title" id="t1">Flash Fetch</h3>
+                <p class="card-desc" id="d1">Retrieves media from servers in milliseconds using high-frequency request protocols.</p>
+            </div>
+            <div class="tilt-card" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)">
+                <i class="fas fa-fingerprint card-icon"></i>
+                <h3 class="card-title" id="t2">No-Log Policy</h3>
+                <p class="card-desc" id="d2">Your activity is processed in RAM and wiped instantly. No traces left behind.</p>
+            </div>
+            <div class="tilt-card" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)">
+                <i class="fas fa-layer-group card-icon"></i>
+                <h3 class="card-title" id="t3">Multi-Core</h3>
+                <p class="card-desc" id="d3">Supports 4K Video, FLAC Audio, and Stories from over 50+ platforms simultaneously.</p>
+            </div>
+        </div>
+    </div>
+
+    <section class="content-rich">
+        <h2 style="font-family: 'Space Grotesk'; color: #fff; margin-bottom: 20px;" id="aH">System Core</h2>
+        <p style="color: #999; line-height: 1.8;" id="aP">Dezer Music operates on a decentralized-style architecture within the Telegram API. By utilizing advanced compression algorithms and cryptographic tunneling, we ensure that every download is not only fast but also completely secure from prying eyes.</p>
+    </section>
+
+    <div class="ad-zone">REKLAM ALANI / AD SPACE</div>
+
+    <footer>
+        <p>Encrypted Connection Established.</p>
+        <p style="margin-top:10px;"><a href="mailto:support@dezer.me" class="footer-link">support@dezer.me</a></p>
+        <p style="margin-top: 30px; font-size: 10px; color: #333;">ID: 7831-1639-3249-3310 | V.3.0.1</p>
+    </footer>
+
+    <script>
+        // PRELOADER
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').style.opacity = '0';
+                document.body.style.overflowY = 'auto'; // Scroll'u aç
+                setTimeout(() => {
+                    document.getElementById('preloader').style.display = 'none';
+                }, 500);
+            }, 2000); // 2 saniye bekle
+        });
+
+        // CUSTOM CURSOR
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursor-dot');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        document.addEventListener('mousedown', () => {
+            cursor.style.transform = "translate(-50%, -50%) scale(0.8)";
+            cursorDot.style.background = "#fff";
+        });
+        
+        document.addEventListener('mouseup', () => {
+            cursor.style.transform = "translate(-50%, -50%) scale(1)";
+            cursorDot.style.background = "var(--accent)";
+        });
+
+        // 3D TILT EFFECT
+        function tilt(e, card) {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = ((y - centerY) / centerY) * -10; // Max 10 deg rotation
+            const rotateY = ((x - centerX) / centerX) * 10;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        }
+
+        function resetTilt(card) {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+        }
+
+        // PARTICLES
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let active = true;
+
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(0, 242, 234, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+        function animate() {
+            if (!active) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+                // Connect particles logic
+                particles.forEach(p2 => {
+                    let dx = p.x - p2.x;
+                    let dy = p.y - p2.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 242, 234, ${0.1 - dist/1000})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        function toggleSnow() {
+            active = !active;
+            document.getElementById('snowBtn').innerText = active ? 'VFX: ON' : 'VFX: OFF';
+            if(!active) ctx.clearRect(0,0,canvas.width,canvas.height);
+            else animate();
+        }
+
+        // LANGUAGE
+        let currentLang = 'en';
+        const content = {
+            en: {
+                heroH: "DIGITAL INTELLIGENCE",
+                heroP: "Secure. Fast. Anonymous. The world's most advanced Telegram media engine.",
+                heroB: "INITIALIZE BOT",
+                t1: "Flash Fetch", d1: "Retrieves media from servers in milliseconds using high-frequency request protocols.",
+                t2: "No-Log Policy", d2: "Your activity is processed in RAM and wiped instantly. No traces left behind.",
+                t3: "Multi-Core", d3: "Supports 4K Video, FLAC Audio, and Stories from over 50+ platforms simultaneously.",
+                aH: "System Core", aP: "Dezer Music operates on a decentralized-style architecture within the Telegram API."
+            },
+            tr: {
+                heroH: "DİJİTAL ZEKA",
+                heroP: "Güvenli. Hızlı. Anonim. Dünyanın en gelişmiş Telegram medya motoru.",
+                heroB: "BOTU BAŞLAT",
+                t1: "Şimşek Hızı", d1: "Yüksek frekanslı protokolleri kullanarak medyayı milisaniyeler içinde çeker.",
+                t2: "Kayıt Tutulmaz", d2: "Aktiviteniz RAM üzerinde işlenir ve anında silinir. Geriye iz kalmaz.",
+                t3: "Çoklu Çekirdek", d3: "50+ platformdan aynı anda 4K Video, FLAC Ses ve Hikaye indirmeyi destekler.",
+                aH: "Sistem Çekirdeği", aP: "Dezer Music, Telegram API içinde merkeziyetsiz bir mimari üzerinde çalışır."
+            }
+        };
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'tr' : 'en';
+            const data = content[currentLang];
+            document.getElementById('langBtn').innerText = currentLang.toUpperCase();
+            
+            // Glitch text update
+            document.getElementById('heroH').setAttribute('data-text', data.heroH);
+            document.getElementById('heroH').innerText = data.heroH;
+            
+            document.getElementById('heroP').innerText = data.heroP;
+            document.getElementById('heroB').innerText = data.heroB;
+            document.getElementById('t1').innerText = data.t1;
+            document.getElementById('d1').innerText = data.d1;
+            document.getElementById('t2').innerText = data.t2;
+            document.getElementById('d2').innerText = data.d2;
+            document.getElementById('t3').innerText = data.t3;
+            document.getElementById('d3').innerText = data.d3;
+            document.getElementById('aH').innerText = data.aH;
+            document.getElementById('aP').innerText = data.aP;
+        }
+    </script>
+</body>
+</html>
