@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dezer Music | Medya Teknoloji Blogu</title>
+    <meta name="description" content="Telegram bot teknolojileri, güvenli medya indirme yöntemleri ve API entegrasyonları hakkında güncel teknoloji blogu.">
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7831163932493310"
+     crossorigin="anonymous"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* DEZER DARK THEME */
+            --bg: #020617; 
+            --card-bg: #0f172a; 
+            --border: #1e293b; 
+            --accent: #818cf8; 
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* NETWORK CANVAS BACKGROUND */
+        #networkCanvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+        }
+
+        /* NAVBAR */
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 15px 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border); 
+            background: rgba(2, 6, 23, 0.9);
+        }
+        .logo { 
+            font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 24px; 
+            letter-spacing: 1px; display: flex; align-items: center; gap: 10px; color: #fff;
+            text-transform: uppercase;
+        }
+        .logo span { color: var(--accent); }
+        
+        .nav-right { display: flex; gap: 15px; align-items: center; }
+        .lang-switch {
+            cursor: pointer; font-size: 11px; font-weight: 700; color: var(--text-muted);
+            border: 1px solid var(--border); padding: 6px 12px; border-radius: 4px;
+            transition: 0.3s; background: rgba(255,255,255,0.02); letter-spacing: 1px;
+        }
+        .lang-switch:hover { color: var(--accent); border-color: var(--accent); }
+
+        .btn-nav {
+            background: var(--accent); color: #fff; padding: 8px 20px; border-radius: 4px;
+            font-weight: 600; font-size: 12px; text-decoration: none; transition: 0.3s;
+            display: none; box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        .btn-nav:hover { background: #6366f1; transform: translateY(-2px); }
+        @media(min-width: 768px) { .btn-nav { display: inline-block; } }
+
+        /* LAYOUT CONTAINER */
+        .container {
+            max-width: 1100px; margin: 100px auto 40px; padding: 0 20px;
+            display: grid; grid-template-columns: 2fr 1fr; gap: 40px;
+            position: relative; z-index: 1;
+        }
+
+        /* LEFT: CONTENT */
+        main { display: flex; flex-direction: column; gap: 30px; }
+
+        .page-header { margin-bottom: 10px; }
+        .page-title {
+            font-family: 'Oswald', sans-serif; font-size: 40px; line-height: 1.1;
+            color: #fff; margin-bottom: 10px;
+        }
+        .page-desc { color: var(--text-muted); font-size: 16px; border-left: 3px solid var(--accent); padding-left: 15px; }
+
+        /* CARD DESIGN */
+        .blog-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 12px; overflow: hidden; transition: 0.3s;
+            display: flex; flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .blog-card:hover { 
+            transform: translateY(-5px); border-color: var(--accent); 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-img {
+            height: 160px; background: #1e293b;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; color: var(--accent);
+            border-bottom: 1px solid var(--border);
+            position: relative; overflow: hidden;
+        }
+        .card-img::after {
+            content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
+            background-image: radial-gradient(#6366f1 1px, transparent 1px);
+            background-size: 20px 20px; opacity: 0.1;
+        }
+
+        .card-body { padding: 25px; }
+        .meta { 
+            font-size: 11px; color: var(--text-muted); margin-bottom: 12px; 
+            display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .tag { color: var(--accent); font-weight: 700; }
+        
+        .card-title { font-family: 'Oswald', sans-serif; font-size: 22px; margin-bottom: 10px; color: #fff; }
+        .card-excerpt { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+
+        .read-more {
+            text-decoration: none; color: #fff; font-weight: 600; font-size: 13px;
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 0; border-top: 1px solid var(--border); width: 100%;
+            transition: 0.3s; margin-top: auto;
+        }
+        .read-more:hover { color: var(--accent); border-color: var(--accent); }
+
+        /* SIDEBAR */
+        aside { display: flex; flex-direction: column; gap: 30px; }
+
+        .widget {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px;
+        }
+        .widget-title { 
+            font-family: 'Oswald', sans-serif; font-size: 16px; color: #fff; 
+            margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        
+        .cat-list { list-style: none; }
+        .cat-list li { 
+            padding: 8px 0; border-bottom: 1px solid var(--border); 
+            color: var(--text-muted); cursor: pointer; transition: 0.2s; 
+            display: flex; justify-content: space-between; font-size: 13px;
+        }
+        .cat-list li:last-child { border: none; }
+        .cat-list li:hover { color: var(--accent); padding-left: 5px; }
+
+        /* AD CONTAINERS */
+        .ad-container {
+            width: 100%; margin: 20px 0;
+            background: rgba(255,255,255,0.02); 
+            border: 1px dashed var(--border);
+            border-radius: 8px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100px;
+        }
+
+        /* PREMIUM WIDGET */
+        .premium-widget {
+            background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%);
+            border: 1px solid #4f46e5; text-align: center;
+        }
+        .prem-btn-w {
+            background: #fff; color: #000; display: block; padding: 10px;
+            border-radius: 4px; text-decoration: none; font-weight: 800; margin-top: 15px;
+            transition: 0.3s; font-size: 12px;
+        }
+        .prem-btn-w:hover { background: #e0e7ff; }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border); padding: 40px 20px;
+            text-align: center; position: relative; z-index: 1; margin-top: 60px;
+            background: #020617; font-size: 13px; color: var(--text-muted);
+        }
+        .legal-links span {
+            cursor: pointer; margin: 0 10px; transition: 0.2s;
+        }
+        .legal-links span:hover { color: var(--accent); }
+
+        /* MODALS */
+        .modal-wrap {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 9999; display: none;
+            justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(5px);
+        }
+        .modal-wrap.active { display: flex; }
+        .modal-content {
+            background: #0f172a; width: 100%; max-width: 600px; max-height: 80vh;
+            border-radius: 12px; border: 1px solid var(--border); padding: 30px;
+            overflow-y: auto; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 20px; cursor: pointer; color: #666; }
+        .modal-h { color: var(--accent); font-family: 'Oswald', sans-serif; font-size: 22px; margin-bottom: 15px; }
+        .modal-p { color: #cbd5e1; font-size: 14px; white-space: pre-line; line-height: 1.8; }
+
+        @media(max-width: 900px) { .container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <canvas id="networkCanvas"></canvas>
+
+    <nav>
+        <div class="logo"><i class="fas fa-cube" style="color:var(--accent)"></i> DEZER<span>BLOG</span></div>
+        <div class="nav-right">
+            <a href="https://t.me/dezermusiicbot" class="btn-nav" id="navStart">START BOT</a>
+            <div class="lang-switch" onclick="toggleLang()" id="langBtn">EN / TR</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <main>
+            <div class="page-header">
+                <h1 class="page-title" id="pTitle">Technology & Bot Guides</h1>
+                <p class="page-desc" id="pDesc">Explore the advanced capabilities of the Dezer Ecosystem. Security protocols, API usage, and media processing tutorials.</p>
+            </div>
+
+            <div class="ad-container">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-7831163932493310"
+                     data-ad-slot="7562352635"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+
+            <article class="blog-card">
+                <div class="card-img">
+                    <i class="fas fa-wave-square"></i>
+                </div>
+                <div class="card-body">
+                    <div class="meta">
+                        <span class="tag">Audio</span> &bull; <span>Process</span> &bull; <span>/indir</span>
+                    </div>
+                    <h2 class="card-title" id="t1">High Fidelity Audio Processing</h2>
+                    <p class="card-excerpt" id="d1">Learn how our Python-based backend processes audio streams with zero latency. The /indir command utilizes FFmpeg libraries to ensure the highest bitrate quality for your personal archives.</p>
+                    <a href="https://t.me/dezermusiicbot" class="read-more" id="b1">LAUNCH TOOL <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <div class="ad-container">
+               <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-7831163932493310"
+                    data-ad-slot="7562352635"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+               <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+               </script>
+            </div>
+
+            <article class="blog-card">
+                <div class="card-img">
+                    <i class="fab fa-tiktok"></i>
+                </div>
+                <div class="card-body">
+                    <div class="meta">
+                        <span class="tag">Video</span> &bull; <span>Clean</span> &bull; <span>/tindir</span>
+                    </div>
+                    <h2 class="card-title" id="t2">Watermark Removal Algorithm</h2>
+                    <p class="card-excerpt" id="d2">Understanding the mechanics behind removing branding overlays. Our bot analyzes the video frame-by-frame to deliver a clean, watermark-free experience for TikTok content retrieval.</p>
+                    <a href="https://t.me/dezermusiicbot" class="read-more" id="b2">START TOOL <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="blog-card">
+                <div class="card-img">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="card-body">
+                    <div class="meta">
+                        <span class="tag">Security</span> &bull; <span>Archive</span> &bull; <span>/gindir</span>
+                    </div>
+                    <h2 class="card-title" id="t3">Secure Social Archiving</h2>
+                    <p class="card-excerpt" id="d3">Privacy is paramount. When you use /gindir for Instagram posts, our servers act as an anonymous proxy. No personal data is logged during the retrieval process.</p>
+                    <a href="https://t.me/dezermusiicbot" class="read-more" id="b3">LAUNCH TOOL <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+        </main>
+
+        <aside>
+            
+            <div class="widget">
+                <h3 class="widget-title" id="wAboutT">About System</h3>
+                <p style="color:var(--text-muted); font-size:13px; line-height:1.6;" id="wAboutD">
+                    Dezer Music is a secure, encrypted Telegram ecosystem designed for efficient media management. We prioritize speed and anonymity.
+                </p>
+            </div>
+
+            <div class="ad-container" style="min-height: 250px;">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-7831163932493310"
+                     data-ad-slot="6819739349"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+
+            <div class="widget premium-widget">
+                <h3 class="widget-title" style="color:#fff; border:none; margin-bottom:5px;" id="wPremT">PREMIUM STATUS</h3>
+                <p style="font-size:12px; color:#c7d2fe;" id="wPremD">Upgrade for higher bandwidth limits.</p>
+                <a href="https://t.me/helpdezerbot" class="prem-btn-w" id="wPremB">GET ACCESS KEY</a>
+            </div>
+
+            <div class="widget">
+                <h3 class="widget-title" id="wCatT">Categories</h3>
+                <ul class="cat-list">
+                    <li><span>API Development</span> <span>04</span></li>
+                    <li><span>Video Processing</span> <span>12</span></li>
+                    <li><span>Data Privacy</span> <span>08</span></li>
+                    <li><span>Bot Commands</span> <span>21</span></li>
+                </ul>
+            </div>
+        </aside>
+
+    </div>
+
+    <footer>
+        <div class="legal-links">
+            <span onclick="openModal('privacy')" id="fPriv">Privacy Policy</span>
+            <span onclick="openModal('terms')" id="fTerms">Terms of Use</span>
+            <span onclick="openModal('contact')" id="fCont">Contact</span>
+        </div>
+        <p style="margin-top:20px;">&copy; 2026 Dezer Music Technology.</p>
+    </footer>
+
+    <div class="modal-wrap" id="modalWrap">
+        <div class="modal-content">
+            <i class="fas fa-times close-btn" onclick="closeModal()"></i>
+            <h2 class="modal-h" id="mTitle">Title</h2>
+            <div class="modal-p" id="mText">Content...</div>
+        </div>
+    </div>
+
+    <script>
+        // --- LANGUAGE ENGINE ---
+        let lang = 'en';
+        const txt = {
+            en: {
+                navStart: "START BOT",
+                pTitle: "Technology & Bot Guides",
+                pDesc: "Explore the advanced capabilities of the Dezer Ecosystem. Security protocols, API usage, and media processing tutorials.",
+                t1: "High Fidelity Audio Processing",
+                d1: "Learn how our Python-based backend processes audio streams with zero latency. The /indir command utilizes FFmpeg libraries to ensure the highest bitrate quality for your personal archives.",
+                b1: "LAUNCH TOOL",
+                t2: "Watermark Removal Algorithm",
+                d2: "Understanding the mechanics behind removing branding overlays. Our bot analyzes the video frame-by-frame to deliver a clean, watermark-free experience for TikTok content retrieval.",
+                b2: "START TOOL",
+                t3: "Secure Social Archiving",
+                d3: "Privacy is paramount. When you use /gindir for Instagram posts, our servers act as an anonymous proxy. No personal data is logged during the retrieval process.",
+                b3: "LAUNCH TOOL",
+                wAboutT: "About System",
+                wAboutD: "Dezer Music is a secure, encrypted Telegram ecosystem designed for efficient media management. We prioritize speed and anonymity.",
+                wPremT: "PREMIUM STATUS",
+                wPremD: "Upgrade for higher bandwidth limits.",
+                wPremB: "GET ACCESS KEY",
+                wCatT: "Categories",
+                fPriv: "Privacy Policy", fTerms: "Terms of Use", fCont: "Contact",
+                // Modals
+                m_priv_d: "At Dezer Technology, we do not store user logs. All processing is done in RAM and wiped after the session. We use cookies strictly for Google AdSense functionality.",
+                m_term_d: "This service is provided for personal archiving purposes only. Users are responsible for complying with copyright laws regarding the content they process.",
+                m_cont_d: "For technical support or DMCA inquiries: support@dezer.me"
+            },
+            tr: {
+                navStart: "BOTU BAŞLAT",
+                pTitle: "Teknoloji ve Bot Rehberleri",
+                pDesc: "Dezer Ekosisteminin gelişmiş yeteneklerini keşfedin. Güvenlik protokolleri, API kullanımı ve medya işleme dersleri.",
+                t1: "Yüksek Kaliteli Ses İşleme",
+                d1: "Python tabanlı altyapımızın ses akışlarını nasıl sıfır gecikmeyle işlediğini öğrenin. /indir komutu, kişisel arşiviniz için en yüksek bit hızını sağlamak adına FFmpeg kütüphanelerini kullanır.",
+                b1: "ARACI BAŞLAT",
+                t2: "Filigran Kaldırma Algoritması",
+                d2: "Marka katmanlarını kaldırmanın arkasındaki mekaniği anlayın. Botumuz, TikTok içerikleri için temiz, filigransız bir deneyim sunmak adına videoyu kare kare analiz eder.",
+                b2: "ARACI BAŞLAT",
+                t3: "Güvenli Sosyal Arşivleme",
+                d3: "Gizlilik esastır. Instagram gönderileri için /gindir kullandığınızda, sunucularımız anonim bir vekil (proxy) görevi görür. İşlem sırasında kişisel veri kaydedilmez.",
+                b3: "ARACI BAŞLAT",
+                wAboutT: "Sistem Hakkında",
+                wAboutD: "Dezer Music, verimli medya yönetimi için tasarlanmış güvenli, şifreli bir Telegram ekosistemidir. Hız ve anonimliğe öncelik veriyoruz.",
+                wPremT: "PREMIUM STATÜSÜ",
+                wPremD: "Daha yüksek bant genişliği limitleri için yükseltin.",
+                wPremB: "ERİŞİM ANAHTARI AL",
+                wCatT: "Kategoriler",
+                fPriv: "Gizlilik Politikası", fTerms: "Kullanım Şartları", fCont: "İletişim",
+                m_priv_d: "Dezer Technology'de kullanıcı logları tutulmaz. Tüm işlemler RAM üzerinde yapılır ve oturum sonrası silinir. Çerezler sadece Google AdSense işlevselliği için kullanılır.",
+                m_term_d: "Bu hizmet yalnızca kişisel arşivleme amaçlıdır. Kullanıcılar işledikleri içerikle ilgili telif hakkı yasalarına uymaktan sorumludur.",
+                m_cont_d: "Teknik destek veya DMCA talepleri için: support@dezer.me"
+            }
+        };
+
+        function toggleLang() {
+            lang = lang === 'en' ? 'tr' : 'en';
+            const d = txt[lang];
+            document.getElementById('langBtn').innerText = lang.toUpperCase() + ' / ' + (lang==='en'?'TR':'EN');
+            
+            const ids = ['navStart','pTitle','pDesc','t1','d1','b1','t2','d2','b2','t3','d3','b3','wAboutT','wAboutD','wPremT','wPremD','wPremB','wCatT','fPriv','fTerms','fCont'];
+            ids.forEach(id => { 
+                const el = document.getElementById(id); 
+                if(el) {
+                    if(id.startsWith('b')) el.innerHTML = d[id] + ' <i class="fas fa-arrow-right"></i>';
+                    else el.innerHTML = d[id];
+                }
+            });
+        }
+
+        // --- MODAL LOGIC ---
+        function openModal(type) {
+            const d = txt[lang];
+            const t = document.getElementById('mTitle');
+            const c = document.getElementById('mText');
+            if(type==='privacy'){ t.innerText=d.fPriv; c.innerText=d.m_priv_d; }
+            if(type==='terms'){ t.innerText=d.fTerms; c.innerText=d.m_term_d; }
+            if(type==='contact'){ t.innerText=d.fCont; c.innerText=d.m_cont_d; }
+            document.getElementById('modalWrap').classList.add('active');
+        }
+        function closeModal(){ document.getElementById('modalWrap').classList.remove('active'); }
+        document.getElementById('modalWrap').addEventListener('click', e => {
+            if(e.target === document.getElementById('modalWrap')) closeModal();
+        });
+
+        // --- NETWORK ANIMATION ENGINE (YENİ) ---
+        const canvas = document.getElementById('networkCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+
+        function init() {
+            width = window.innerWidth; height = window.innerHeight;
+            canvas.width = width; canvas.height = height;
+            particles = [];
+            const count = width < 768 ? 40 : 80; 
+            for(let i=0; i<count; i++) {
+                particles.push({
+                    x: Math.random()*width, y: Math.random()*height,
+                    vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5,
+                    size: Math.random()*2 + 1
+                });
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Update and draw particles
+            for(let i=0; i<particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                
+                if(p.x < 0 || p.x > width) p.vx *= -1;
+                if(p.y < 0 || p.y > height) p.vy *= -1;
+
+                ctx.fillStyle = "rgba(129, 140, 248, 0.5)"; // İndigo renk
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+
+                // Draw Connections
+                for(let j=i+1; j<particles.length; j++) {
+                    let p2 = particles[j];
+                    let dx = p.x - p2.x;
+                    let dy = p.y - p2.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if(dist < 150) {
+                        ctx.strokeStyle = `rgba(129, 140, 248, ${1 - dist/150})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout); resizeTimeout = setTimeout(init, 100);
+        });
+        init(); animate();
+    </script>
+</body>
+</html>
