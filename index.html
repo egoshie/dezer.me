@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dezer Music | Yeni Nesil Medya Asistanı</title>
+    <meta name="description" content="Telegram tabanlı medya işleme, ses mühendisliği ve güvenli veri aktarımı üzerine kurulu Dezer Music ekosistemi.">
+    
+    <meta name="google-adsense-account" content="ca-pub-7794020831456214">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7794020831456214"
+     crossorigin="anonymous"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0b0f19; 
+            --card-bg: #151b2b; 
+            --border: #2a3449; 
+            --accent: #3b82f6; 
+            --accent-hover: #2563eb;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+        
+        body { 
+            background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; 
+            overflow-x: hidden; line-height: 1.8; min-height: 100vh;
+        }
+
+        /* KAR EFEKTİ */
+        #snowCanvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+            background: radial-gradient(circle at top, #1e293b 0%, #020617 100%);
+        }
+
+        /* NAVBAR */
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 20px 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(11, 15, 25, 0.85);
+        }
+        .logo { 
+            font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 26px; 
+            letter-spacing: 1.5px; display: flex; align-items: center; gap: 12px; color: #fff; text-transform: uppercase;
+        }
+        .logo i { color: var(--accent); }
+        .nav-links { display: flex; gap: 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+        .nav-links span { cursor: pointer; transition:0.3s; }
+        .nav-links span:hover { color: #fff; }
+
+        .btn-primary {
+            background: var(--accent); color: #fff; padding: 10px 25px; border-radius: 6px;
+            font-weight: 600; font-size: 13px; text-decoration: none; transition: 0.3s;
+            display: inline-block; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); }
+
+        /* MAIN LAYOUT */
+        .container {
+            max-width: 1200px; margin: 120px auto 60px; padding: 0 20px;
+            display: grid; grid-template-columns: 2.5fr 1fr; gap: 50px;
+            position: relative; z-index: 1;
+        }
+
+        /* CONTENT STYLES */
+        .section-title { font-family: 'Oswald', sans-serif; font-size: 32px; color: #fff; margin-bottom: 20px; position: relative; display: inline-block; }
+        .section-title::after { content:''; position:absolute; bottom:-5px; left:0; width:60px; height:4px; background:var(--accent); border-radius:2px; }
+        
+        .text-block { margin-bottom: 40px; color: #cbd5e1; font-size: 16px; text-align: justify; }
+        .text-block p { margin-bottom: 20px; }
+        .text-block strong { color: #fff; }
+
+        /* FEATURE CARDS */
+        .grid-features { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
+        .feature-box {
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+            padding: 25px; border-radius: 12px; transition: 0.3s;
+        }
+        .feature-box:hover { background: rgba(255,255,255,0.04); border-color: var(--accent); }
+        .f-icon { font-size: 24px; color: var(--accent); margin-bottom: 15px; }
+        .f-title { font-weight: 700; color: #fff; margin-bottom: 10px; font-family: 'Oswald', sans-serif; }
+        .f-desc { font-size: 13px; color: var(--text-muted); }
+
+        /* SIDEBAR */
+        .widget { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 25px; margin-bottom: 30px; }
+        .w-title { font-family: 'Oswald', sans-serif; font-size: 18px; color:#fff; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:10px; }
+        .contact-row { display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 15px; color: var(--text-muted); }
+        .contact-row i { color: var(--accent); width: 20px; }
+
+        /* ADS PLACEHOLDER */
+        .ad-space {
+            width: 100%; min-height: 250px; background: rgba(0,0,0,0.2); 
+            border: 1px dashed var(--border); display: flex; align-items: center; 
+            justify-content: center; margin: 30px 0; border-radius: 8px;
+        }
+
+        /* MODALS (LONG TEXT) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 9999; display: none;
+            justify-content: center; align-items: flex-start; padding: 50px 20px; overflow-y: auto;
+        }
+        .modal-box {
+            background: #1e293b; width: 100%; max-width: 800px;
+            border-radius: 10px; border: 1px solid var(--border); padding: 40px;
+            position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+        .close-m { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: #fff; }
+        .legal-text { font-size: 14px; color: #cbd5e1; line-height: 1.9; white-space: pre-line; }
+        .legal-h { font-family: 'Oswald', sans-serif; font-size: 24px; color: var(--accent); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+
+        /* FOOTER */
+        footer { border-top: 1px solid var(--border); padding: 50px 0; text-align: center; margin-top: 50px; background: #080c14; position: relative; z-index: 1;}
+        .f-links span { margin: 0 15px; cursor: pointer; font-size: 14px; color: var(--text-muted); transition:0.2s; }
+        .f-links span:hover { color: var(--accent); }
+
+        @media(max-width: 900px) { .container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <canvas id="snowCanvas"></canvas>
+
+    <nav>
+        <div class="logo"><i class="fas fa-headphones-simple"></i> DEZER MUSIC</div>
+        <div class="nav-links">
+            <span onclick="scrollToEl('features')">ÖZELLİKLER</span>
+            <span onclick="scrollToEl('guide')">REHBER</span>
+            <span onclick="scrollToEl('faq')">SSS</span>
+        </div>
+        <a href="https://t.me/dezermusiicbot" class="btn-primary"><i class="fab fa-telegram-plane"></i> BOTU BAŞLAT</a>
+    </nav>
+
+    <div class="container">
+        
+        <main>
+            
+            <div class="text-block">
+                <h1 style="font-family: 'Oswald', sans-serif; font-size: 48px; line-height: 1.1; margin-bottom: 20px;">
+                    Yeni Nesil <span style="color:var(--accent)">Medya Çözümleri</span> ve Bulut Teknolojisi
+                </h1>
+                <p>
+                    Dezer Music Ekosistemi, modern internet kullanıcılarının medya işleme, veri sıkıştırma ve güvenli arşivleme ihtiyaçlarını karşılamak üzere tasarlanmış, Telegram API altyapısı üzerine kurulu gelişmiş bir yazılım projesidir. Günümüzün dijital dünyasında, yüksek kaliteli ses ve video formatlarına erişim, sadece bir eğlence aracı değil, aynı zamanda içerik üreticileri ve arşivciler için hayati bir gerekliliktir.
+                </p>
+                <p>
+                    Platformumuz, kullanıcıların <strong>YouTube, Instagram, TikTok</strong> ve diğer medya sağlayıcılarından gelen ham veri akışlarını analiz ederek, bu verileri sunucu tabanlı işleme (server-side processing) teknolojisi ile optimize eder. Bu işlem sırasında herhangi bir kalite kaybı yaşanmazken, dosyalar maksimum veri tasarrufu sağlayacak şekilde yeniden kodlanır.
+                </p>
+            </div>
+
+            <div class="ad-space">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-7794020831456214"
+                     data-ad-slot="7562352635"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+
+            <div id="features" style="padding-top:40px;">
+                <h2 class="section-title">Teknolojik Altyapı ve Özellikler</h2>
+                <p style="margin-bottom:30px; color:#94a3b8;">Dezer Music, sıradan bir botun ötesinde, arka planda çalışan karmaşık algoritmalarla donatılmıştır.</p>
+                
+                <div class="grid-features">
+                    <div class="feature-box">
+                        <i class="fas fa-bolt f-icon"></i>
+                        <div class="f-title">Yüksek Hızlı API</div>
+                        <div class="f-desc">Cloudflare destekli CDN ağımız sayesinde istekleriniz milisaniyeler içinde işlenir ve yanıtlanır.</div>
+                    </div>
+                    <div class="feature-box">
+                        <i class="fas fa-shield-alt f-icon"></i>
+                        <div class="f-title">256-bit SSL Güvenlik</div>
+                        <div class="f-desc">Veri transferi sırasında uçtan uca şifreleme kullanılarak kullanıcı gizliliği %100 korunur.</div>
+                    </div>
+                    <div class="feature-box">
+                        <i class="fas fa-wave-square f-icon"></i>
+                        <div class="f-title">Kayıpsız Ses Dönüşümü</div>
+                        <div class="f-desc">FFmpeg kütüphanesi kullanılarak medya dosyaları 320kbps bit hızına kadar optimize edilir.</div>
+                    </div>
+                    <div class="feature-box">
+                        <i class="fas fa-database f-icon"></i>
+                        <div class="f-title">Bulut Arşivleme</div>
+                        <div class="f-desc">İşlenen dosyalar geçici önbellekte tutularak tekrar eden isteklerde anında teslimat sağlanır.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="guide" class="text-block">
+                <h2 class="section-title">Kullanım Rehberi ve Komutlar</h2>
+                <p>Dezer Music sistemini verimli kullanmak için aşağıdaki protokolleri takip edebilirsiniz. Sistemimiz, kullanıcı deneyimini (UX) en üst düzeye çıkarmak için minimalist bir komut seti ile çalışır.</p>
+                
+                <ul style="list-style:none; margin-top:20px; border-left:2px solid var(--accent); padding-left:20px;">
+                    <li style="margin-bottom:15px;">
+                        <strong style="color:var(--accent)">/indir [Sorgu]</strong><br>
+                        Bu komut, global müzik veritabanlarında arama yapar. Bir şarkı ismi veya doğrudan bir bağlantı girebilirsiniz. Sistem, meta verileri (Albüm kapağı, Sanatçı bilgisi) otomatik olarak dosyaya işler (ID3 Tagging).
+                    </li>
+                    <li style="margin-bottom:15px;">
+                        <strong style="color:var(--accent)">/tindir ve /gindir</strong><br>
+                        Sosyal medya platformlarındaki dikey video formatlarını (Shorts/Reels) analiz eder. Görüntü üzerindeki filigranları (Watermark) yapay zeka destekli algoritmalarla tespit edip temizleyerek ham dosyayı sunar.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="ad-space">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-7794020831456214"
+                     data-ad-slot="6819739349"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+
+        </main>
+
+        <aside>
+            <div class="widget">
+                <h3 class="w-title">İLETİŞİM & DESTEK</h3>
+                <div class="contact-row"><i class="fas fa-envelope"></i> support@dezer.me</div>
+                <div class="contact-row"><i class="fas fa-globe"></i> www.dezer.me</div>
+                <div class="contact-row"><i class="fab fa-telegram"></i> @dezermusiicbot</div>
+                <p style="font-size:12px; color:#64748b; margin-top:15px;">Teknik sorunlar ve reklam işbirlikleri için e-posta yoluyla 7/24 ulaşabilirsiniz.</p>
+            </div>
+
+            <div class="widget">
+                <h3 class="w-title">SON GÜNCELLEMELER</h3>
+                <div style="font-size:13px; color:#cbd5e1;">
+                    <p style="margin-bottom:10px;"><strong>v3.2.1 (Ocak 2026)</strong><br>Spotify API entegrasyonu güçlendirildi. Ses işleme hızı %40 artırıldı.</p>
+                    <p><strong>v3.1.0 (Aralık 2025)</strong><br>Instagram Reels indirme modülü eklendi. Sunucu yanıt süreleri optimize edildi.</p>
+                </div>
+            </div>
+
+            <div class="ad-space" style="height:600px;">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-7794020831456214"
+                     data-ad-slot="6819739349"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+        </aside>
+
+    </div>
+
+    <footer>
+        <div class="f-links">
+            <span onclick="openModal('privacy')">Gizlilik Politikası (Privacy Policy)</span>
+            <span onclick="openModal('terms')">Kullanım Şartları (Terms of Use)</span>
+            <span onclick="openModal('cookies')">Çerez Politikası (Cookies)</span>
+        </div>
+        <p style="margin-top:20px; color:#475569; font-size:13px;">
+            &copy; 2026 Dezer Music Technology Inc. Tüm Hakları Saklıdır.<br>
+            Bu site Google AdSense politikalarına tam uyumluluk göstermektedir.
+        </p>
+    </footer>
+
+    <div class="modal-overlay" id="mainModal">
+        <div class="modal-box">
+            <i class="fas fa-times close-m" onclick="closeModal()"></i>
+            <h2 class="legal-h" id="mTitle">Başlık</h2>
+            <div class="legal-text" id="mContent">İçerik...</div>
+        </div>
+    </div>
+
+    <script>
+        // KAR EFEKTİ (CANVAS)
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        const particles = [];
+        const particleCount = 100; // Kar tanesi sayısı
+
+        for(let i=0; i<particleCount; i++){
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 2 + 1, // Boyut
+                d: Math.random() * particleCount,
+                s: Math.random() * 1 + 0.5 // Hız
+            })
+        }
+
+        function draw(){
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+            ctx.beginPath();
+            for(let i=0; i<particleCount; i++){
+                let p = particles[i];
+                ctx.moveTo(p.x, p.y);
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI*2, true);
+            }
+            ctx.fill();
+            update();
+        }
+
+        function update(){
+            for(let i=0; i<particleCount; i++){
+                let p = particles[i];
+                p.y += p.s;
+                if(p.y > height) {
+                    particles[i] = {x: Math.random()*width, y: -10, r: p.r, d: p.d, s: p.s};
+                }
+            }
+        }
+        setInterval(draw, 33);
+        
+        window.addEventListener('resize', () => {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        });
+
+        // MODAL VE METİNLER
+        const legalTexts = {
+            privacy: `GİZLİLİK POLİTİKASI (PRIVACY POLICY)
+
+**1. Veri Toplama ve Kullanım**
+Dezer Music ("Hizmet"), kullanıcı gizliliğine en üst düzeyde önem verir. Hizmetimizi kullandığınızda, sunucularımız otomatik olarak belirli teknik verileri (Log Data) kaydedebilir. Bu veriler IP adresi, tarayıcı türü, ziyaret edilen sayfalar ve tarih/saat bilgilerini içerebilir. Ancak, Telegram kullanıcı kimliğiniz (User ID) dışında, kişisel olarak tanımlanabilir hiçbir bilgi (Ad, Soyad, Adres vb.) tarafımızca talep edilmez veya saklanmaz.
+
+**2. Çerezler (Cookies) ve Üçüncü Taraf Hizmetler**
+Web sitemiz, kullanıcı deneyimini iyileştirmek ve reklam hizmetleri sunmak amacıyla "Çerezler" kullanmaktadır. Özellikle Google AdSense, sitemizde reklam görüntülemek için çerezleri kullanır. Google'ın reklam çerezlerini kullanımı, sitenize ve internetteki diğer sitelere yaptığınız ziyaretlere dayalı olarak reklam sunmasına olanak tanır.
+Kullanıcılar, tarayıcı ayarlarından çerezleri devre dışı bırakabilirler.
+
+**3. Veri Güvenliği**
+Kullanıcı verilerinin güvenliği bizim için önceliklidir. İletişim, endüstri standardı olan SSL (Secure Socket Layer) şifrelemesi ile korunmaktadır. Ancak, internet üzerinden yapılan hiçbir iletim yönteminin %100 güvenli olmadığını hatırlatırız.
+
+**4. İletişim**
+Gizlilik politikamızla ilgili sorularınız için: support@dezer.me`,
+
+            terms: `KULLANIM ŞARTLARI (TERMS OF USE)
+
+**1. Hizmetin Kabulü**
+Dezer Music web sitesini veya Telegram botunu kullanarak, bu şartları kabul etmiş sayılırsınız. Eğer bu şartları kabul etmiyorsanız, lütfen hizmeti kullanmayınız.
+
+**2. Hizmetin Amacı**
+Dezer Music, kullanıcılara çevrimiçi medya içeriklerini analiz etme ve kişisel arşivleme amacıyla format dönüştürme araçları sunar. Hizmetimiz, telif hakkı ihlaline teşvik etmek amacıyla tasarlanmamıştır. İndirilen içeriklerin yasal sorumluluğu tamamen kullanıcıya aittir.
+
+**3. Fikri Mülkiyet**
+Hizmetimiz aracılığıyla işlenen tüm içeriklerin fikri mülkiyet hakları, ilgili içerik üreticilerine veya yayıncılarına aittir. Dezer Music, bu içeriklerin sahibi değildir.
+
+**4. Yasaklanmış Faaliyetler**
+Sistemi aşırı yüklemek (DDoS), tersine mühendislik yapmak, botu spam amaçlı kullanmak veya sistemin güvenlik açıklarını aramak kesinlikle yasaktır. Bu tür faaliyetlerde bulunan kullanıcıların erişimi kalıcı olarak engellenir.
+
+**5. Değişiklikler**
+Dezer Music, bu kullanım şartlarını önceden haber vermeksizin değiştirme hakkını saklı tutar.
+
+**Yetkili İletişim:** support@dezer.me`,
+
+            cookies: `ÇEREZ POLİTİKASI
+
+**1. Çerez Nedir?**
+Çerezler, ziyaret ettiğiniz web siteleri tarafından bilgisayarınıza kaydedilen küçük metin dosyalarıdır.
+
+**2. Hangi Çerezleri Kullanıyoruz?**
+- **Zorunlu Çerezler:** Sitenin çalışması için gereklidir.
+- **Analitik Çerezler:** Ziyaretçi sayısını takip etmemizi sağlar.
+- **Reklam Çerezleri (Google AdSense):** Size ilgi alanlarınıza uygun reklamlar göstermek için kullanılır.
+
+Çerezleri tarayıcınızdan dilediğiniz zaman silebilirsiniz.`
+        };
+
+        function openModal(type) {
+            document.getElementById('mTitle').innerText = type === 'privacy' ? 'GİZLİLİK POLİTİKASI' : (type === 'terms' ? 'KULLANIM KOŞULLARI' : 'ÇEREZ POLİTİKASI');
+            document.getElementById('mContent').innerHTML = legalTexts[type].replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            document.getElementById('mainModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('mainModal').style.display = 'none';
+        }
+        function scrollToEl(id) {
+            document.getElementById(id).scrollIntoView({behavior: 'smooth'});
+        }
+    </script>
+</body>
+</html>
